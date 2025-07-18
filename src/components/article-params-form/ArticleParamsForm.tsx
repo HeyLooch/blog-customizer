@@ -1,11 +1,13 @@
+import styles from './ArticleParamsForm.module.scss';
+import clsx from 'clsx';
 import { ArrowButton } from 'src/ui/arrow-button';
 import { Button } from 'src/ui/button';
-
-import styles from './ArticleParamsForm.module.scss';
-import { useState } from 'react';
-import clsx from 'clsx';
+import { useRef, useState } from 'react';
 import { Text } from 'src/ui/text';
 import { Select } from 'src/ui/select';
+import { RadioGroup } from 'src/ui/radio-group';
+import { Separator } from 'src/ui/separator';
+import { useOutsideClickClose } from './hooks/useOutsideClickClose';
 import {
 	backgroundColors,
 	contentWidthArr,
@@ -16,18 +18,23 @@ import {
 	OptionType,
 	defaultArticleState,
 } from 'src/constants/articleProps';
-import { RadioGroup } from 'src/ui/radio-group';
-import { Separator } from 'src/ui/separator';
 
 type ArticleParamsFormProps = {
 	onApply: (params: ArticleStateType) => void;
 };
 
 export const ArticleParamsForm = ({ onApply }: ArticleParamsFormProps) => {
-	const [isOpen, setIsOpen] = useState<boolean>(false);
+	const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+	const formRef = useRef<HTMLFormElement>(null);
+
+	useOutsideClickClose({
+		isMenuOpen,
+		formRef,
+		onChange: setIsMenuOpen,
+	});
 
 	const isOpenHandle = () => {
-		setIsOpen(!isOpen);
+		setIsMenuOpen(!isMenuOpen);
 	};
 
 	const [formState, setFormState] = useState(defaultArticleState);
@@ -49,14 +56,17 @@ export const ArticleParamsForm = ({ onApply }: ArticleParamsFormProps) => {
 
 	return (
 		<>
-			<ArrowButton isOpen={isOpen} onClick={isOpenHandle} />
+			<ArrowButton isOpen={isMenuOpen} onClick={isOpenHandle} />
 			<aside
-				className={clsx(styles.container, { [styles.container_open]: isOpen })}
+				className={clsx(styles.container, {
+					[styles.container_open]: isMenuOpen,
+				})}
 				style={{ overflow: 'hidden' }}>
 				<form
 					className={styles.form}
 					onSubmit={handleSubmit}
-					onReset={handleReset}>
+					onReset={handleReset}
+					ref={formRef}>
 					<Text size={31} weight={800} uppercase align='left'>
 						Задайте параметры
 					</Text>
